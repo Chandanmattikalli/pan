@@ -22,11 +22,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Login extends AppCompatActivity {
-
-
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -45,10 +40,6 @@ public class Login extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
     }
-
-
 }
 

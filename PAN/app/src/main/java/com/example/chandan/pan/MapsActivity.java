@@ -1,9 +1,11 @@
 package com.example.chandan.pan;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
@@ -35,7 +37,7 @@ import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 
 
-public class MapsActivity extends FragmentActivity implements LocationListener, GoogleMap.OnMarkerClickListener
+public class MapsActivity extends FragmentActivity implements LocationListener, GoogleMap.OnMarkerClickListener, GoogleMap.OnMapClickListener
 {
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     protected LocationManager locationManager;
@@ -44,7 +46,7 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     private Marker marker;
     private int id;
     private TextView details;
-    private int contactNumber;
+    private String contactNumber;
     private Button buttonDelivery;
     private Button buttonCall;
 
@@ -53,10 +55,17 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map);
         ScreenLog = (TextView) findViewById(R.id.log);
+        contactNumber = "";
         details =  (TextView) findViewById(R.id.textViewDetail);
         buttonDelivery = (Button)findViewById(R.id.buttonDelivered);
         buttonCall = (Button)findViewById(R.id.buttonCall);
-
+        buttonCall.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:"+contactNumber));
+                startActivity(callIntent);
+            }
+        });
         buttonDelivery.setVisibility(View.INVISIBLE);
         buttonCall.setVisibility(View.INVISIBLE);
         details.setVisibility(View.INVISIBLE);
@@ -64,21 +73,26 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         setUpMapIfNeeded();
         new HttpAsyncTask().execute("http://panweb.co/vtigercrm/ums_integration/return_salesorder_data.php");
         mMap.setOnMarkerClickListener((GoogleMap.OnMarkerClickListener)this);
+        mMap.setOnMapClickListener(this);
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        // TODO Auto-generated method stub
-//        if(marker.equals(marker_1)){
-//            Log.w("Click", "test");
-//            return true;
-//        }
-        Log.w("Click","hey");
+        contactNumber = marker.getSnippet();
         buttonDelivery.setVisibility(View.VISIBLE);
         buttonCall.setVisibility(View.VISIBLE);
         details.setVisibility(View.VISIBLE);
-        details.setText(marker.getTitle());
+        details.setText(marker.getTitle() + "/n" + marker.getSnippet());
         return true;
+    }
+    @Override
+    public void onMapClick(LatLng point) {
+        Log.i("maps","clicked");
+        contactNumber = "";
+        buttonDelivery.setVisibility(View.INVISIBLE);
+        buttonCall.setVisibility(View.INVISIBLE);
+        details.setVisibility(View.INVISIBLE);
+        details.setText("");
     }
 
     /**
@@ -140,25 +154,6 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
     @Override
     public void onLocationChanged(Location location)
     {
-        double Latitude = location.getLatitude();
-        double Longitude = location.getLongitude();
-        Log.e("latitude",String.valueOf(Latitude));
-        Log.e("longitude",String.valueOf(Longitude));
-
-        DecimalFormat df = new DecimalFormat("##.####");
-        Log.e("formatted latitude", df.format(Latitude));
-        float[] results = new float[1];
-        Location.distanceBetween(12.92127341, 77.55655992, Latitude, Longitude, results);
-        Log.e("distance :", Float.toString(results[0]));
-
-        if(results[0] < 20)
-        {
-            ScreenLog.setText("In :"+ Float.toString(results[0]));
-        }
-        else
-        {
-            ScreenLog.setText("Out :"+ Float.toString(results[0]));
-        }
         // this can be done in the setUpMap function once we get the actual latitude and longitude
         if(this.mapset == false)
         {
@@ -253,5 +248,5 @@ public class MapsActivity extends FragmentActivity implements LocationListener, 
         inputStream.close();
         return result;
     }
-
+   //*****************************************************async call ended***************************/
 }
