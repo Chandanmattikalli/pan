@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">PAN</string>
+    <string name="delivery_boy_name">Delivery boy name</string>
+    <string name="password">password</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="login">Login</string>
+    <string name="title_activity_custom_info_window_adapter">CustomInfoWindowAdapter</string>
+</resources>
